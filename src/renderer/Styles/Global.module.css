@@ -1,0 +1,13 @@
+.df_bg_container {
+  background: radial-gradient(
+    circle at center,
+    var(--light-blue-clr) 0,
+    var(--medium-blue-clr) 35%,
+    var(--dark-blue-clr) 70%
+  );
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  display: grid;
+  place-items: center;
+}

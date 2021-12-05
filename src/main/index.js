@@ -43,6 +43,8 @@ const createWindow = async () => {
   const mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
+    minWidth: 400,
+    minHeight: 300,
     title: 'decent',
     icon: nativeImage.createFromPath(path.join(app.getAppPath(), 'src/assets/icons/decentralized-network-100.png')),
     center: true,

@@ -1,4 +1,6 @@
 import React from 'react';
+
+import { df_bg_container } from '../Styles/Global.module.css';
 import styles from '../Styles/Welcome.module.css';
 import { useNavigate } from "react-router-dom";
 
@@ -17,12 +19,12 @@ function Welcome() {
             e.target.innerText = "";
 
             //Todo: Add animation before redirection
-            setTimeout(() => navigate("/home"), 1000);
+            setTimeout(() => navigate("/register"), 1000);
         }
     }
 
     return (
-        <div className={styles.container}>
+        <div className={df_bg_container}>
             <div className={styles.icon_container}>
                 <button className={styles.welcome_btn} clicked="false" onClick={handleWelcomeBtnClick}>Welcome to Decent</button>
             </div>

@@ -1,24 +1,3 @@
-.container {
-  /* background-color: hsl(80, 61%, 50%); */
-  /* background: radial-gradient(
-    circle at center,
-    hsl(80, 84%, 65%) 0,
-    hsl(80, 76%, 59%) 35%,
-    hsl(80, 61%, 50%) 70%
-  ); */
-  background: radial-gradient(
-    circle at center,
-    hsl(192, 84%, 65%) 0,
-    hsl(192, 76%, 59%) 35%,
-    hsl(192, 61%, 50%) 70%
-  );
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  display: grid;
-  place-items: center;
-}
-
 .icon_container {
   width: fit-content;
   display: grid;
@@ -28,8 +7,8 @@
 
 .welcome_btn[clicked="false"] {
   background-color: white;
-  padding: 2.5px 15px;
-  border-radius: 1rem;
+  padding: 0.5rem 2rem;
+  border-radius: 1.5rem;
   cursor: pointer;
   font-size: 1.5rem;
 }
