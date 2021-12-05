@@ -1,0 +1,56 @@
+.container {
+  /* background-color: hsl(80, 61%, 50%); */
+  /* background: radial-gradient(
+    circle at center,
+    hsl(80, 84%, 65%) 0,
+    hsl(80, 76%, 59%) 35%,
+    hsl(80, 61%, 50%) 70%
+  ); */
+  background: radial-gradient(
+    circle at center,
+    hsl(192, 84%, 65%) 0,
+    hsl(192, 76%, 59%) 35%,
+    hsl(192, 61%, 50%) 70%
+  );
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  display: grid;
+  place-items: center;
+}
+
+.icon_container {
+  width: fit-content;
+  display: grid;
+  place-items: center;
+  gap: 10px;
+}
+
+.welcome_btn[clicked="false"] {
+  background-color: white;
+  padding: 2.5px 15px;
+  border-radius: 1rem;
+  cursor: pointer;
+  font-size: 1.5rem;
+}
+
+.welcome_btn[clicked="true"] {
+  background: white url("../../assets/icons/decentralized-network-100.svg")
+    no-repeat center center;
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  transform-origin: center;
+  animation: welcome_btn_clicked 300ms ease-out;
+}
+
+@keyframes welcome_btn_clicked {
+  from {
+    width: 0;
+    height: 0;
+  }
+  to {
+    width: 110px;
+    height: 110px;
+  }
+}

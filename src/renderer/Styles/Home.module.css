@@ -1,0 +1,83 @@
+.container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  /* justify-content: space-between; */
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.peer_info > p > span:first-of-type {
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.peer_info,
+.swarm_list,
+.bootstrap_list,
+.connected_peers_list,
+.manual_peer_connection,
+.subscribed_topics,
+.publish_message,
+.received_messages {
+  border: 1px solid green;
+  border-radius: 1rem;
+  padding: 1rem;
+  background-color: rgb(235, 235, 235);
+}
+
+.swarm_list > ul,
+.bootstrap_list > ul,
+.connected_peers_list > ul,
+.subscribed_topics > ul {
+  padding-left: 1rem;
+  list-style-type: disc;
+}
+
+.bootstrap_list > form,
+.manual_peer_connection > form,
+.subscribed_topics > form,
+.publish_message > form {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-top: 0.5rem;
+}
+
+.bootstrap_list > form > input,
+.manual_peer_connection > form > input,
+.subscribed_topics > form > input,
+.publish_message > form > input {
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid green;
+}
+
+.bootstrap_list > form > input[type="submit"],
+.manual_peer_connection > form > input[type="submit"],
+.subscribed_topics > form > input[type="submit"],
+.publish_message > form > input[type="submit"] {
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid green;
+  cursor: pointer;
+}
+
+.bootstrap_list > form > input[type="submit"]:hover,
+.manual_peer_connection > form > input[type="submit"]:hover,
+.subscribed_topics > form > input[type="submit"]:hover,
+.publish_message > form > input[type="submit"]:hover {
+  background-color: orange;
+  color: white;
+}
+
+.refresh_btn {
+  float: right;
+  cursor: pointer;
+  color: blue;
+}
+
+.refresh_btn:hover {
+  text-decoration: underline;
+}

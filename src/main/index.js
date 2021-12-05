@@ -8,7 +8,11 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
   app.quit();
 }
 
-const instantiatePeer = (mainWindow) => {
+const instantiatePeer = async (mainWindow) => {
+
+  Peer.onpeerconnect = (peerId) => {
+    console.log("Connected Peer ID: ", peerId);
+  }
 
   Peer.onready = async () => {
     const peerInfo = {
@@ -40,7 +44,7 @@ const createWindow = async () => {
     width: 800,
     height: 600,
     title: 'decent',
-    icon: nativeImage.createFromPath(path.join(app.getAppPath(), 'src/assets/icons/icon.png')),
+    icon: nativeImage.createFromPath(path.join(app.getAppPath(), 'src/assets/icons/decentralized-network-100.png')),
     center: true,
     autoHideMenuBar: true,
     webPreferences: {
@@ -50,7 +54,7 @@ const createWindow = async () => {
     }
   });
   console.log(MAIN_WINDOW_WEBPACK_ENTRY);
-  instantiatePeer(mainWindow);
+  await instantiatePeer(mainWindow);
   // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
   // mainWindow.webContents.on('did-finish-load', () => {})

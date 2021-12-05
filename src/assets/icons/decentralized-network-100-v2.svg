@@ -1,0 +1,10 @@
+<svg version="1.2" baseProfile="tiny-ps" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+	<title>decentralized-network-100</title>
+	<defs>
+		<image  width="88" height="92" id="img1" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFgAAABcAgMAAACXapqxAAAAAXNSR0IB2cksfwAAAAlQTFRFAAAAAAAAAP//PUX7PwAAAAN0Uk5TAP8BHlUJOgAAARFJREFUeJzNVMsNwyAMhQOHDuARukdG4BBLPXb/KZrY2GDjSI1UVXDjYfx/LyU9iCk4BbEGMCDu38OIofNV4LyFMNSonIwhDLgHrcqn5ez6cLDNueXA7fHXGZ/ezkhgjCn2mVcxxpQpwcYzcFqI2aRBXZhbsRhM5bw7+KhhlW163CotM8uYyJGawzCmov3OZqCILzUYcnrKTd/N3+JG3SKBG3XLC/xecBXF7wXXPHZBk1yDUnfhe3pyIUoXEvabU0xEjaSw8NLCyksL68YGcO+QwI4NK8AsHAw3+eyLyjAMvKS1Jljks0sYwWB4ORCw87LLo1VEuTn5lL9ea0GY5glYZ/lMlwTkmrMzTitR6m9M+wALDKzZ/N01bgAAAABJRU5ErkJggg=="/>
+	</defs>
+	<style>
+		tspan { white-space:pre }
+	</style>
+	<use id="Background" href="#img1" x="6" y="4" />
+</svg>
