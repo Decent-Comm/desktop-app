@@ -34,6 +34,8 @@
 
 .profile_picture > span {
   position: absolute;
+  color: hsl(0, 0%, 30%);
+  font-weight: bold;
   background-color: rgb(221, 221, 221, 0.85);
   width: 100%;
   text-align: center;
@@ -50,6 +52,8 @@
 }
 
 .forward_icon_btn {
+  background-color: transparent;
+  display: grid;
   transition: color 300ms ease-out !important;
   margin-top: 0.5rem;
   cursor: pointer;

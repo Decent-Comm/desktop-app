@@ -32,6 +32,10 @@ contextBridge.exposeInMainWorld('bridge', {
         sendMessage(topic, msg) {
             ipcRenderer.send('send-message', topic, msg);
         },
+        //Todo: separate APIS
+        registerProfileInfo(profileData) {
+            ipcRenderer.send('register-profile-info', profileData);
+        }
 
     }
 });
