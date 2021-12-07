@@ -17,6 +17,7 @@ git clone https://github.com/Decent-Comm/desktop-app.git
   padding: 0.25em 0.5em;">
   In a choice of command-line interpreter (<u>in administrator mode</u>), navigate to the cloned <b>desktop-app</b> folder:
 </p>
+
 ```
 npm install && npm start
 ```
