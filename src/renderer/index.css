@@ -14,6 +14,10 @@ body {
   cursor: default;
 }
 
+[hide="true"] {
+  display: none !important;
+}
+
 :root {
   --light-blue-clr: hsl(192, 84%, 65%);
   --medium-blue-clr: hsl(192, 76%, 59%);

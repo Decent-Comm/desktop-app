@@ -15,18 +15,18 @@ function Welcome() {
     const handleWelcomeBtnClick = (e) => {
         if (!clicked) {
             clicked = true;
-            e.target.setAttribute("clicked", "true");
-            e.target.innerText = "";
+            e.currentTarget.setAttribute("clicked", "true");
+            e.currentTarget.innerHTML = "";
 
             //Todo: Add animation before redirection
-            setTimeout(() => navigate("/register"), 1000);
+            // setTimeout(() => navigate("/register"), 1000);
         }
     }
 
     return (
         <div className={df_bg_container}>
             <div className={styles.icon_container}>
-                <button className={styles.welcome_btn} clicked="false" onClick={handleWelcomeBtnClick}>Welcome to Decent</button>
+                <button className={styles.welcome_btn} clicked="false" onClick={handleWelcomeBtnClick}><span>Welcome to Decent</span></button>
             </div>
         </div>
     )
