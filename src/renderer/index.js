@@ -26,17 +26,18 @@
  * ```
  */
 
-import React from 'react';
-import ReactDOM from 'react-dom';
-import App from './App';
-import './index.css';
-
-
-ReactDOM.render(
-    <React.StrictMode>
-        <App />
-    </React.StrictMode>,
-    document.getElementById('root')
-);
-
-console.log('👋 This message is being logged by "renderer", included via webpack');
+ import React from 'react';
+ import ReactDOM from 'react-dom';
+ import App from './App';
+ import './index.css';
+ 
+ 
+ ReactDOM.render(
+     <React.StrictMode>
+         <App />
+     </React.StrictMode>,
+     document.getElementById('root')
+ );
+ 
+ console.log('👋 This message is being logged by "renderer", included via webpack');
+ 

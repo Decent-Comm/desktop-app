@@ -5,12 +5,47 @@
   gap: 10px;
 }
 
+.welcome_btn[clicked="false"]::before,
+.welcome_btn[clicked="false"]::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  background: inherit;
+  border-radius: 50%;
+}
+
+.welcome_btn[clicked="false"]::before {
+  width: 115px;
+  height: 115px;
+  bottom: 0;
+  left: 40px;
+}
+
+.welcome_btn[clicked="false"]::after {
+  width: 165px;
+  height: 150px;
+  bottom: 0;
+  right: 35px;
+}
+
 .welcome_btn[clicked="false"] {
+  position: relative;
   background-color: white;
-  padding: 0.5rem 2rem;
-  border-radius: 1.5rem;
+  box-shadow: 10px 10px hsla(0, 0%, 0%, 0.2);
+  padding: 1.5rem 2.5rem;
+  border-radius: 3rem;
   cursor: pointer;
   font-size: 1.5rem;
+  padding-top: 1rem;
+}
+
+.welcome_btn[clicked="false"] > span {
+  z-index: 1;
+  position: relative;
+  color: hsl(0, 0%, 40%);
+  font-weight: bold;
+  font-family: cursive;
+  letter-spacing: 0.1rem;
 }
 
 .welcome_btn[clicked="true"] {
@@ -19,7 +54,6 @@
   width: 110px;
   height: 110px;
   border-radius: 50%;
-  transform-origin: center;
   animation: welcome_btn_clicked 300ms ease-out;
 }
 
