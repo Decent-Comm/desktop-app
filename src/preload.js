@@ -32,10 +32,17 @@ contextBridge.exposeInMainWorld('bridge', {
         sendMessage(topic, msg) {
             ipcRenderer.send('send-message', topic, msg);
         },
-        //Todo: separate APIS
-        registerProfileInfo(profileData) {
-            ipcRenderer.send('register-profile-info', profileData);
-        }
+
+        //Todo: separate APIs
+        getUserDB(setUserDB) {
+            ipcRenderer.invoke('get-userDB').then(res => setUserDB(res));
+        },
+        updateProfileInfo(profileData, setUserDB) {
+            ipcRenderer.invoke('update-profile-info', profileData).then(res => setUserDB(res));
+        },
+        // listenUserDB(setUserDB) {
+        //     ipcRenderer.on(, (_, msg) => setUserDB(prevState => [...prevState, msg])))
+        // }
 
     }
 });

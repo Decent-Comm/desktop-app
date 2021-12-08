@@ -18,17 +18,29 @@ function App() {
         piecedbAddr: ''
     });
 
+    const [userDB, setUserDB] = useState({});
+
+    const stateObj = (state, setState) => {
+        return { state: state, setState: setState };
+    }
+
     useEffect(() => {
         window.bridge.peerAPI.getPeerInfo(setPeer);
+        window.bridge.peerAPI.getUserDB(setUserDB);
     }, [])
 
+    const contextValue = {
+        peer: stateObj(peer, setPeer),
+        userDB: stateObj(userDB, setUserDB)
+    }
+
     return (
-        <context.Provider value={peer}>
+        <context.Provider value={contextValue}>
             <MemoryRouter>
                 <Routes>
-                    {/* <Route path='/' exact element={<Welcome />} /> */}
+                    <Route path='/' exact element={<Welcome />} />
+                    <Route path='/register' element={<Register />} />
                     <Route path='/home' element={<Home />} />
-                    <Route path='/' element={<Register />} />
                 </Routes>
             </MemoryRouter>
         </context.Provider>
