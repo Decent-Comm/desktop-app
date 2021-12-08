@@ -51,7 +51,8 @@ class Peer {
         // this.user.events.on('load', (dbname) => console.log('Loaded: ', dbname))
         await this.user.load();
         await this.loadFixtureData({
-            username: Math.floor(Math.random() * 1000000),
+            profile: null,
+            // username: Math.floor(Math.random() * 1000000),
             pieces: this.pieces.id,
             nodeId: peerInfo.id
         });
@@ -61,12 +62,14 @@ class Peer {
         //* Peer to peer communication via IPFS pubsub
         await this.node.pubsub.subscribe(peerInfo.id, this.handleMessageReceived.bind(this));
 
+        this.user.events.on('write', this.handleWriteEventUserDB.bind(this));
+
         this.user.events.on("replicated", () => {
-            console.log(`replication event fired`);
+            console.log(`Replication event fired`);
         });
 
         this.user.events.on("peer", (peer) => {
-            console.log(`Event fired: \n${peer}`);
+            console.log(`Peer Connection Event on user DB -> fired: \n${peer}`);
         });
 
         if (this.onready) this.onready();
@@ -133,6 +136,16 @@ class Peer {
     }
 
     //* User DB Related Methods
+
+    handleWriteEventUserDB(address, entry, heads) {
+        console.log("Write OP: ");
+        console.log("Address: ", address);
+        console.log("Entry: ", entry);
+        console.log("Heads: ", heads);
+
+        // this.OrbitDB.parseAddress(address)
+    }
+
     async loadFixtureData(fixtureData) {
         const fixtureKeys = Object.keys(fixtureData);
         for (let i in fixtureKeys) {
@@ -145,6 +158,14 @@ class Peer {
     async updateProfileField(key, value) {
         const cid = await this.user.set(key, value);
         return cid;
+    }
+
+
+    async updateProfileFields(newData) {
+        console.log(newData);
+        for (const [key, value] of Object.entries(newData)) {
+            await this.user.set(key, value);
+        }
     }
 
     async deleteProfileField(key) {

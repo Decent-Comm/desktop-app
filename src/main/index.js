@@ -32,6 +32,16 @@ const instantiatePeer = async (mainWindow) => {
     ipcMain.on('connect-to-peer', async (_, multiAddr) => await Peer.connectToPeer(multiAddr));
     ipcMain.on('subscribe', async (_, topic) => await Peer.subscribeTopic(topic, (msg) => mainWindow.webContents.send(topic, msg)))
     ipcMain.on('send-message', async (_, topic, msg) => await Peer.sendMessage(topic, msg));
+
+    //* User DB
+    ipcMain.handle('get-userDB', () => Peer.getAllProfileFields());
+    ipcMain.handle('update-profile-info', async (_, profileData) => {
+      // const image = nativeImage.createFromBuffer(Buffer.from(profileData.profilePicBuffer));
+      // const resizedImageBuf = image.resize({ width: 200, height: 200, quality: "best" }).toJPEG(60);
+
+      await Peer.updateProfileField('profile', profileData);
+      return Peer.getAllProfileFields();
+    });
   }
 
   Peer.create();

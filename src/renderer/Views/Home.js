@@ -1,9 +1,14 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { context } from '../Context';
 
 import styles from '../Styles/Home.module.css';
 
 
 function Home() {
+
+    const { userDB } = useContext(context);
+
+    const [view, setView] = useState(true);
 
     const [peer, setPeer] = useState({
         peerId: '',
@@ -91,114 +96,135 @@ function Home() {
         window.bridge.peerAPI.getTopics(setTopics, setMessages);
     }, [])
 
+    //* Temp
+    const [src, setSrc] = useState(undefined);
+    const imageBufferToURL = (buffer) => {
+        const blob = new Blob([buffer], { type: "image/jpeg" });
+
+        const reader = new FileReader();
+        reader.onloadend = (e) => {
+            setSrc(e.target.result);
+        }
+
+        reader.readAsDataURL(blob);
+    }
 
     return (
-        <div className={styles.container}>
-            <div className={styles.peer_info}>
-                <p><span>Peer ID:</span> <span>{peer.peerId}</span></p>
-                <p><span>OrbitDB Identity ID:</span> <span>{peer.identityId}</span></p>
-                <p><span>User DB Address:</span> <span>{peer.userdbAddr}</span></p>
-                <p><span>Piece DB Address:</span> <span>{peer.piecedbAddr}</span></p>
-            </div>
-            <div className={styles.swarm_list}>
-                <h4>Swarm listening on: </h4>
-                <ul>
-                    {swarmList.map(swarm =>
-                        <li key={swarm}>
-                            {swarm}
-                        </li>)
-                    }
-                </ul>
-            </div>
-
-            <div className={styles.bootstrap_list}>
-                <h4>Bootstrap List: <button
-                    name='bootstrap'
-                    className={styles.refresh_btn}
-                    onClick={handleRefresh}
-                >Refresh</button></h4>
-                <ul>
-                    {bootstrapList.map(bootstrap =>
-                        <li key={bootstrap}>
-                            {bootstrap}
-                        </li>)
-                    }
-                </ul>
-                <br />
-                <h4>Add New Bootstrap </h4>
-                <form onSubmit={handleBootstrapSubmit}>
-                    <label htmlFor='bootstrap'>Multi Address: </label>
-                    <input ref={bootstrapInputRef} type='text' id='bootstrap' />
-                    <input type='submit' value='ADD' />
-                </form>
-            </div>
-            <div className={styles.connected_peers_list}>
-                <h4>Connected Peers List: <button
-                    name='connected_peers'
-                    className={styles.refresh_btn}
-                    onClick={handleRefresh}
-                >Refresh</button></h4>
-                <ul>
-                    {connectedPeersList.map(peer =>
-                        <li key={peer.peer}>
-                            {peer.peer}
-                        </li>)
-                    }
-                </ul>
-            </div>
-            <div className={styles.manual_peer_connection}>
-                <h4>Manually Connect to a Peer </h4>
-                <form onSubmit={handleConnectSubmit}>
-                    <label htmlFor='multiaddr'>Multi Address: </label>
-                    <input ref={connectPeerInputRef} type='text' id='multiaddr' />
-                    <input type='submit' value='CONNECT' />
-                </form>
-            </div>
-
-            <div className={styles.subscribed_topics}>
-                <h4>Subscribed Topics: <button
-                    name='topics'
-                    className={styles.refresh_btn}
-                    onClick={handleRefresh}
-                >Refresh</button></h4>
-                <ul>
-                    {topics.map(topic =>
-                        <li key={topic}>
-                            {topic}
-                        </li>)
-                    }
-                </ul>
-                <br />
-                <h4>Subscribe to a New Topic </h4>
-                <form onSubmit={handleTopicSubmit}>
-                    <label htmlFor='topic'>New Topic: </label>
-                    <input ref={topicInputRef} type='text' id='topic' />
-                    <input type='submit' value='SUBSCRIBE' />
-                </form>
-            </div>
-
-            <div className={styles.publish_message}>
-                <h4>Publish a Message </h4>
-                <form onSubmit={handleMessageSubmit}>
-                    <label htmlFor='message_topic'>Topic: </label>
-                    <input ref={messageTopicInputRef} type='text' id='message_topic' />
-                    <label htmlFor='message'>Message: </label>
-                    <input ref={messageInputRef} type='text' id='message' />
-                    <input type='submit' value='PUBLISH' />
-                </form>
-            </div>
-
-            <div className={styles.received_messages}>
-                {messages.map((message, index) => <div key={index}>
-                    <p><span>From:</span> <span>{message.from}</span></p>
-                    <p><span>Data:</span> <span>{new TextDecoder().decode(message.data)}</span></p>
+        view ?
+            <div className={styles.container}>
+                <div>
+                    <img src={src ?? imageBufferToURL(userDB.state.profile.ppBuffer)} />
+                    <p>{userDB.state.profile.name}</p>
+                    <p>{userDB.state.profile.surname}</p>
                 </div>
-                )}
-                {messages.length === 0 ? "No Messages Yet" : null}
+            </div>
+            :
+            <div className={styles.container}>
+                <div className={styles.peer_info}>
+                    <p><span>Peer ID:</span> <span>{peer.peerId}</span></p>
+                    <p><span>OrbitDB Identity ID:</span> <span>{peer.identityId}</span></p>
+                    <p><span>User DB Address:</span> <span>{peer.userdbAddr}</span></p>
+                    <p><span>Piece DB Address:</span> <span>{peer.piecedbAddr}</span></p>
+                </div>
+                <div className={styles.swarm_list}>
+                    <h4>Swarm listening on: </h4>
+                    <ul>
+                        {swarmList.map(swarm =>
+                            <li key={swarm}>
+                                {swarm}
+                            </li>)
+                        }
+                    </ul>
+                </div>
+
+                <div className={styles.bootstrap_list}>
+                    <h4>Bootstrap List: <button
+                        name='bootstrap'
+                        className={styles.refresh_btn}
+                        onClick={handleRefresh}
+                    >Refresh</button></h4>
+                    <ul>
+                        {bootstrapList.map(bootstrap =>
+                            <li key={bootstrap}>
+                                {bootstrap}
+                            </li>)
+                        }
+                    </ul>
+                    <br />
+                    <h4>Add New Bootstrap </h4>
+                    <form onSubmit={handleBootstrapSubmit}>
+                        <label htmlFor='bootstrap'>Multi Address: </label>
+                        <input ref={bootstrapInputRef} type='text' id='bootstrap' />
+                        <input type='submit' value='ADD' />
+                    </form>
+                </div>
+                <div className={styles.connected_peers_list}>
+                    <h4>Connected Peers List: <button
+                        name='connected_peers'
+                        className={styles.refresh_btn}
+                        onClick={handleRefresh}
+                    >Refresh</button></h4>
+                    <ul>
+                        {connectedPeersList.map(peer =>
+                            <li key={peer.peer}>
+                                {peer.peer}
+                            </li>)
+                        }
+                    </ul>
+                </div>
+                <div className={styles.manual_peer_connection}>
+                    <h4>Manually Connect to a Peer </h4>
+                    <form onSubmit={handleConnectSubmit}>
+                        <label htmlFor='multiaddr'>Multi Address: </label>
+                        <input ref={connectPeerInputRef} type='text' id='multiaddr' />
+                        <input type='submit' value='CONNECT' />
+                    </form>
+                </div>
+
+                <div className={styles.subscribed_topics}>
+                    <h4>Subscribed Topics: <button
+                        name='topics'
+                        className={styles.refresh_btn}
+                        onClick={handleRefresh}
+                    >Refresh</button></h4>
+                    <ul>
+                        {topics.map(topic =>
+                            <li key={topic}>
+                                {topic}
+                            </li>)
+                        }
+                    </ul>
+                    <br />
+                    <h4>Subscribe to a New Topic </h4>
+                    <form onSubmit={handleTopicSubmit}>
+                        <label htmlFor='topic'>New Topic: </label>
+                        <input ref={topicInputRef} type='text' id='topic' />
+                        <input type='submit' value='SUBSCRIBE' />
+                    </form>
+                </div>
+
+                <div className={styles.publish_message}>
+                    <h4>Publish a Message </h4>
+                    <form onSubmit={handleMessageSubmit}>
+                        <label htmlFor='message_topic'>Topic: </label>
+                        <input ref={messageTopicInputRef} type='text' id='message_topic' />
+                        <label htmlFor='message'>Message: </label>
+                        <input ref={messageInputRef} type='text' id='message' />
+                        <input type='submit' value='PUBLISH' />
+                    </form>
+                </div>
+
+                <div className={styles.received_messages}>
+                    {messages.map((message, index) => <div key={index}>
+                        <p><span>From:</span> <span>{message.from}</span></p>
+                        <p><span>Data:</span> <span>{new TextDecoder().decode(message.data)}</span></p>
+                    </div>
+                    )}
+                    {messages.length === 0 ? "No Messages Yet" : null}
+
+                </div>
 
             </div>
-
-        </div>
     )
 }
 
