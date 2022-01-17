@@ -12,6 +12,7 @@ import CameraSharpIcon from '@mui/icons-material/CameraSharp';
 import { context } from '../Context';
 
 import compressor from "browser-image-compression";
+import { useNavigate } from 'react-router-dom';
 
 function Register() {
 

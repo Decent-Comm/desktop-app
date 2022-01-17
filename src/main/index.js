@@ -73,6 +73,12 @@ const createWindow = async () => {
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
+
+  mainWindow.on('focus', () => mainWindow.webContents.send('window_action', { isFocused: true }));
+
+  mainWindow.on('blur', () => mainWindow.webContents.send('window_action', { isFocused: false }));
+
+  mainWindow.on('close', () => mainWindow.webContents.send('window_action', { isFocused: false }))
 };
 
 

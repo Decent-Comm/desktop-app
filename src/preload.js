@@ -44,5 +44,10 @@ contextBridge.exposeInMainWorld('bridge', {
         //     ipcRenderer.on(, (_, msg) => setUserDB(prevState => [...prevState, msg])))
         // }
 
-    }
+    },
+    windowApi: {
+        setListener(onFocus, onBlur) {
+            ipcRenderer.on('window_action', (_, message) => message.isFocused ? onFocus() : onBlur())
+        }
+    },
 });
