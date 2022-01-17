@@ -45,6 +45,14 @@ contextBridge.exposeInMainWorld('bridge', {
         // }
 
     },
+    fileApi: {
+        async downloadFile(url, file_name) {
+            return await ipcRenderer.invoke('download', url, file_name);
+        },
+        openFile(path) {
+            ipcRenderer.send('open-file', path);
+        }
+    },
     windowApi: {
         setListener(onFocus, onBlur) {
             ipcRenderer.on('window_action', (_, message) => message.isFocused ? onFocus() : onBlur())
