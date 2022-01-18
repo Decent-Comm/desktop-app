@@ -3,13 +3,13 @@
   font-style: normal;
   font-weight: 500;
   /* src: url("assets/fonts/Quicksand-VariableFont_wght.ttf") format("truetype"); */
-  src: url("assets/fonts/e-Ukraine-Regular.ttf") format("truetype");
+  src: url("../assets/fonts/e-Ukraine-Regular.ttf") format("truetype");
 }
 
 @font-face {
   font-family: emoji-font;
   font-style: normal;
-  src: url("assets/fonts/Symbola-Emoji.woff") format("woff");
+  src: url("../assets/fonts/Symbola-Emoji.woff") format("woff");
 }
 
 *,

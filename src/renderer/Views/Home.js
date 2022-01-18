@@ -27,6 +27,7 @@ import LinkRoundedIcon from '@mui/icons-material/LinkRounded';
 import DescriptionRoundedIcon from '@mui/icons-material/DescriptionRounded';
 import GetAppRoundedIcon from '@mui/icons-material/GetAppRounded';
 import InsertDriveFileRoundedIcon from '@mui/icons-material/InsertDriveFileRounded';
+import FingerprintRoundedIcon from '@mui/icons-material/FingerprintRounded';
 import Badge from '@mui/material/Badge';
 
 import Bubbles from '../components/Bubbles';
@@ -35,6 +36,8 @@ import Button from '@mui/material/Button';
 import AddContact from '../components/AddContact';
 import LogOut from '../components/LogOut';
 import EmojiList from '../components/EmojiList';
+
+import compressor from "browser-image-compression";
 
 
 const bgColors = [
@@ -57,6 +60,12 @@ const getRandomBgColor = () => bgColors[Math.floor(Math.random() * 8)];
 function Home() {
 
     const { userDB } = useContext(context);
+
+    useEffect(() => {
+        if (userDB.state.profile.ppBuffer) imageBufferToURL(userDB.state.profile.ppBuffer);
+        setInitials(userDB.state.profile.name[0].toUpperCase() + userDB.state.profile.surname[0].toUpperCase());
+        setDisplayName(userDB.state.profile.name + " " + userDB.state.profile.surname);
+    }, [userDB.state.profile])
 
     const [view, setView] = useState(true);
 
@@ -145,10 +154,6 @@ function Home() {
         window.bridge.peerAPI.getConnectedPeersList(setConnectedPeersList);
         window.bridge.peerAPI.getTopics(setTopics, setMessages);
 
-        if (userDB.state.profile.ppBuffer) imageBufferToURL(userDB.state.profile.ppBuffer);
-        setInitials(userDB.state.profile.name[0].toUpperCase() + userDB.state.profile.surname[0].toUpperCase());
-        setDisplayName(userDB.state.profile.name + " " + userDB.state.profile.surname);
-
         window.bridge.windowApi.setListener(onFocus, onBlur);
     }, [])
 
@@ -232,7 +237,28 @@ function Home() {
         document.removeEventListener('mouseup', handleMouseUpR);
     }
 
-    const handlePhotoChange = (e) => e.currentTarget.files && props.uploadProfilePhoto(e.currentTarget.files.item(0));
+    const handlePhotoChange = async (e) => {
+        const currentFile = e.currentTarget.files[0];
+        if (currentFile) {
+            const compressedFile = await compressor(currentFile, {
+                maxSizeMB: 0.05,
+                maxWidthOrHeight: 200,
+                // useWebWorker: true => requires 'worker-src' as Content Security Policy
+                useWebWorker: false
+            });
+
+            const reader = new FileReader();
+            reader.onloadend = async (e) => {
+                setImageSrc(e.target.result);
+                let ppBuffer = await compressedFile.arrayBuffer();
+                window.bridge.peerAPI.updateProfileInfo({
+                    ...userDB.state.profile,
+                    ppBuffer,
+                }, userDB.setState);
+            };
+            reader.readAsDataURL(compressedFile);
+        }
+    };
     const handleFileChange = (e) => {
         if (e.currentTarget.files) {
             // const data = chats.find(chat => chat.id === selectedChatId);
@@ -365,12 +391,12 @@ function Home() {
 
                                     <div ref={profileSettingsDetailsRef} className={classes.profile_setting_details_box}>
                                         <div onClick={() => {
-                                            profileSettingsDetailsRef.current.style.transform = 'translateX(-100%)';
+                                            // profileSettingsDetailsRef.current.style.transform = 'translateX(-100%)';
                                             handleClosingAnimation(() => {
                                                 profileSettingsDetailsRef.current.style.display = 'none';
                                                 profileSettingsEditRef.current.style.display = 'flex';
                                                 handleClosingAnimation(() => {
-                                                    profileSettingsEditRef.current.style.transform = 'translateX(0)';
+                                                    profileSettingsEditRef.current.style.transform = 'translateX(100%)';
                                                     profileFNameRef.current.focus();
                                                 }, 100);
                                             }, 300);
@@ -379,7 +405,7 @@ function Home() {
                                             <span>{displayName}</span>
                                         </div>
                                         <div>
-                                            <PhoneTwoToneIcon className={classes.phone_icon} />
+                                            <FingerprintRoundedIcon className={classes.identity_icon} />
                                             <span>{peer.peerId}</span>
                                         </div>
                                     </div>
@@ -394,10 +420,13 @@ function Home() {
                                                 Cancel
                                             </Button>
                                             <Button color='primary' size='small'
-                                                onClick={() => props.editProfileInfo({
-                                                    first_name: profileFNameRef.current.value,
-                                                    last_name: profileLNameRef.current.value
-                                                }).then(handleProfileSettingsAnimClosing)}
+                                                onClick={() => Promise.resolve().then(() =>
+                                                    bridge.peerAPI.updateProfileInfo({
+                                                        ...userDB.state.profile,
+                                                        name: profileFNameRef.current.value,
+                                                        surname: profileLNameRef.current.value,
+                                                    }, userDB.setState)
+                                                ).then(handleProfileSettingsAnimClosing)}
                                             >Save</Button>
                                         </div>
                                     </div>
@@ -526,28 +555,29 @@ function Home() {
                     />
                 </div>
 
-                {(() => {
-                    let selectedChatData = "Cloud"; // chats?.find(each => each.id === selectedChatId);
-                    selectedChatId === "Cloud" && (selectedChatData = { toId: "Cloud", Cloud: { displayName: "Cloud" } });
-                    return (<>
-                        <div className={classes.middle}>
-                            {!selectedChatId ?
-                                <>
-                                    <Bubbles />
-                                    <div className={classes.none_selected_chat}>
-                                        Start messaging
-                                    </div>
-                                </>
-                                :
-                                <div className={classes.selected_chat}>
-                                    <div className={classes.chat_header}>
-                                        <h1>{selectedChatData[selectedChatData.toId].displayName ?? selectedChatData[selectedChatData.toId].phoneNumber}</h1>
-                                        {selectedChatId !== 'Cloud' &&
-                                            <span>last seen {onlineUsers[selectedChatData.toId]?.lastSeen ? getLastSeen(onlineUsers[selectedChatData.toId].lastSeen) : 'recently'}</span>
-                                        }
-                                    </div>
-                                    <div className={classes.chat_container}>
-                                        {/* {data[selectedChatId]?.data?.map((each, index) =>
+                {
+                    (() => {
+                        let selectedChatData = "Cloud"; // chats?.find(each => each.id === selectedChatId);
+                        selectedChatId === "Cloud" && (selectedChatData = { toId: "Cloud", Cloud: { displayName: "Cloud" } });
+                        return (<>
+                            <div className={classes.middle}>
+                                {!selectedChatId ?
+                                    <>
+                                        <Bubbles />
+                                        <div className={classes.none_selected_chat}>
+                                            Start messaging
+                                        </div>
+                                    </>
+                                    :
+                                    <div className={classes.selected_chat}>
+                                        <div className={classes.chat_header}>
+                                            <h1>{selectedChatData[selectedChatData.toId].displayName ?? selectedChatData[selectedChatData.toId].phoneNumber}</h1>
+                                            {selectedChatId !== 'Cloud' &&
+                                                <span>last seen {onlineUsers[selectedChatData.toId]?.lastSeen ? getLastSeen(onlineUsers[selectedChatData.toId].lastSeen) : 'recently'}</span>
+                                            }
+                                        </div>
+                                        <div className={classes.chat_container}>
+                                            {/* {data[selectedChatId]?.data?.map((each, index) =>
                                         <div ref={index === 0 ? lastMessageRef : null} key={each.id} className={each.sentBy === credentials.uid ? classes.message_right : classes.message_left}>
                                             {each.message ?
                                                 <p className={classes.selectable}>
@@ -573,106 +603,132 @@ function Home() {
                                         </div>
                                     )} */}
 
-                                    </div>
-                                    <div className={classes.input_bar}>
-                                        <EmojiList inputRef={textAreaRef} />
-                                        <input ref={fileInputRef} hidden onChange={handleFileChange} type='file' />
-                                        <AttachFileRoundedIcon onClick={handleFileInputClick} className={classes.upload_icon} />
-                                        <textarea
-                                            spellCheck={false}
-                                            className={classes.text_field}
-                                            autoFocus
-                                            ref={textAreaRef}
-                                            placeholder='Write a message...'
-                                            onKeyDown={(e) => {
-                                                if (e.key === "Enter") setKey('Enter');
-                                            }}
-                                            onChange={(e) => {
-                                                e.currentTarget.style.height = 'auto';
-                                                if (key === 'Enter') { handleMessageSubmit(); return setKey(null); }
+                                        </div>
+                                        <div className={classes.input_bar}>
+                                            <EmojiList inputRef={textAreaRef} />
+                                            <input ref={fileInputRef} hidden onChange={handleFileChange} type='file' />
+                                            <AttachFileRoundedIcon onClick={handleFileInputClick} className={classes.upload_icon} />
+                                            <textarea
+                                                spellCheck={false}
+                                                className={classes.text_field}
+                                                autoFocus
+                                                ref={textAreaRef}
+                                                placeholder='Write a message...'
+                                                onKeyDown={(e) => {
+                                                    if (e.key === "Enter") setKey('Enter');
+                                                }}
+                                                onChange={(e) => {
+                                                    e.currentTarget.style.height = 'auto';
+                                                    if (key === 'Enter') { handleMessageSubmit(); return setKey(null); }
 
-                                                if (e.currentTarget.scrollHeight <= 250) {
-                                                    e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';
-                                                    // console.log(e.currentTarget.scrollHeight);
-                                                }
-                                            }}
-                                            rows={1}
-                                        />
-                                        <SendRoundedIcon onClick={handleMessageSubmit} color='primary' className={classes.send_icon} />
+                                                    if (e.currentTarget.scrollHeight <= 250) {
+                                                        e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';
+                                                        // console.log(e.currentTarget.scrollHeight);
+                                                    }
+                                                }}
+                                                rows={1}
+                                            />
+                                            <SendRoundedIcon onClick={handleMessageSubmit} color='primary' className={classes.send_icon} />
+                                        </div>
                                     </div>
-                                </div>
 
-                            }
-                        </div>
-                        {selectedChatId ?
-                            <div className={classes.right}>
-                                <div ref={resizerRightRef} className={classes.resize + ' ' + classes.rsz_right} onMouseDown={() => {
-                                    document.body.style.cursor = 'e-resize';
-                                    document.addEventListener('mousemove', handleMouseMoveR);
-                                    document.addEventListener('mouseup', handleMouseUpR);
-                                }} />
-                                <div className={classes.right_header}>
-                                    <h1>{selectedChatId !== 'Cloud' ? 'User Info' : 'Chat Info'}</h1>
-                                </div>
-                                <div className={classes.user_info}>
-                                    {selectedChatId !== 'Cloud' ?
-                                        (selectedChatData[selectedChatData.toId].photoURL
-                                            ? <img src={selectedChatData[selectedChatData.toId].photoURL} />
-                                            : <div style={{ backgroundColor: userBgColorList[selectedChatId] }} className={classes.user_info_df_pic}>
-                                                <PersonRoundedIcon fontSize='large' />
-                                            </div>)
-                                        :
-                                        <CloudRoundedIcon fontSize='large' color='error' />
-                                    }
-                                    <div className={classes.user_info_content}>
-                                        <h1 className={classes.selectable}>{selectedChatData[selectedChatData.toId].displayName ?? selectedChatData[selectedChatData.toId].phoneNumber}</h1>
+                                }
+                            </div>
+                            {selectedChatId ?
+                                <div className={classes.right}>
+                                    <div ref={resizerRightRef} className={classes.resize + ' ' + classes.rsz_right} onMouseDown={() => {
+                                        document.body.style.cursor = 'e-resize';
+                                        document.addEventListener('mousemove', handleMouseMoveR);
+                                        document.addEventListener('mouseup', handleMouseUpR);
+                                    }} />
+                                    <div className={classes.right_header}>
+                                        <h1>{selectedChatId !== 'Cloud' ? 'User Info' : 'Chat Info'}</h1>
+                                    </div>
+                                    <div className={classes.user_info}>
+                                        {selectedChatId !== 'Cloud' ?
+                                            (selectedChatData[selectedChatData.toId].photoURL
+                                                ? <img src={selectedChatData[selectedChatData.toId].photoURL} />
+                                                : <div style={{ backgroundColor: userBgColorList[selectedChatId] }} className={classes.user_info_df_pic}>
+                                                    <PersonRoundedIcon fontSize='large' />
+                                                </div>)
+                                            :
+                                            <CloudRoundedIcon fontSize='large' color='error' />
+                                        }
+                                        <div className={classes.user_info_content}>
+                                            <h1 className={classes.selectable}>{selectedChatData[selectedChatData.toId].displayName ?? selectedChatData[selectedChatData.toId].phoneNumber}</h1>
+                                            {selectedChatId !== 'Cloud' &&
+                                                <span>last seen {onlineUsers[selectedChatData.toId]?.lastSeen ? getLastSeen(onlineUsers[selectedChatData.toId].lastSeen, true) : 'recently'}</span>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div className={classes.user_media_settings}>
                                         {selectedChatId !== 'Cloud' &&
-                                            <span>last seen {onlineUsers[selectedChatData.toId]?.lastSeen ? getLastSeen(onlineUsers[selectedChatData.toId].lastSeen, true) : 'recently'}</span>
+                                            <div className={classes.top}>
+                                                <div>
+                                                    <FingerprintRoundedIcon />
+                                                    <span>{selectedChatData[selectedChatData.toId].phoneNumber}</span>
+                                                </div>
+                                            </div>
+                                        }
+                                        <div className={classes.center}>
+                                            <div>
+                                                <ImageRoundedIcon />
+                                                <span>Images</span>
+                                            </div>
+                                            <div>
+                                                <VideocamRoundedIcon />
+                                                <span>Videos</span>
+                                            </div>
+                                            <div>
+                                                <LinkRoundedIcon />
+                                                <span>Links</span>
+                                            </div>
+                                            <div>
+                                                <InsertDriveFileRoundedIcon />
+                                                <span>Files</span>
+                                            </div>
+                                        </div>
+                                        {selectedChatId !== 'Cloud' &&
+                                            <div className={classes.bottom}>
+                                                <div>
+                                                    <DeleteForeverRoundedIcon />
+                                                    <span>Delete contact</span>
+                                                </div>
+                                            </div>
                                         }
                                     </div>
-                                </div>
-                                <div className={classes.user_media_settings}>
-                                    {selectedChatId !== 'Cloud' &&
-                                        <div className={classes.top}>
-                                            <div>
-                                                <PhoneTwoToneIcon />
-                                                <span>{selectedChatData[selectedChatData.toId].phoneNumber}</span>
-                                            </div>
-                                        </div>
-                                    }
-                                    <div className={classes.center}>
-                                        <div>
-                                            <ImageRoundedIcon />
-                                            <span>Images</span>
-                                        </div>
-                                        <div>
-                                            <VideocamRoundedIcon />
-                                            <span>Videos</span>
-                                        </div>
-                                        <div>
-                                            <LinkRoundedIcon />
-                                            <span>Links</span>
-                                        </div>
-                                        <div>
-                                            <InsertDriveFileRoundedIcon />
-                                            <span>Files</span>
-                                        </div>
-                                    </div>
-                                    {selectedChatId !== 'Cloud' &&
-                                        <div className={classes.bottom}>
-                                            <div>
-                                                <DeleteForeverRoundedIcon />
-                                                <span>Delete contact</span>
-                                            </div>
-                                        </div>
-                                    }
-                                </div>
 
-                            </div>
-                            : null}
-                    </>)
-                })()}
-            </div>
+                                </div>
+                                : null}
+                        </>)
+                    })()
+                }
+
+                {
+                    (profileIconClicked || settingsIconClicked || addContactClicked || logOutClicked) &&
+                    <div ref={flScreenBgRef} onClick={(e) => {
+                        e.currentTarget.style.opacity = '0';
+                        if (profileIconClicked) profileRef.current.style.transform = 'scale(0,0)';
+                        if (settingsIconClicked) settingsRef.current.style.transform = 'scale(0,0)';
+                        if (addContactClicked || logOutClicked) popUpRef.current.style.opacity = '0';
+                        handleClosingAnimation(() => {
+                            profileIconClicked ? setProfileIconClicked(false) :
+                                settingsIconClicked ? setSettingsIconClicked(false) :
+                                    addContactClicked ? setAddContactClicked(false) :
+                                        logOutClicked ? setLogOutClicked(false) :
+                                            null
+                        }, 250);
+                    }} className={classes.fl_screen_bg} />
+                }
+                {
+                    addContactClicked &&
+                    <AddContact ref={popUpRef} flScreenBgRef={flScreenBgRef} />
+                }
+                {
+                    logOutClicked &&
+                    <LogOut ref={popUpRef} flScreenBgRef={flScreenBgRef} history={history} />
+                }
+            </div >
             :
             <div className={styles.container}>
                 <div className={styles.peer_info}>
