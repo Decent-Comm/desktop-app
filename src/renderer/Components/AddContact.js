@@ -31,7 +31,7 @@ const AddContact = forwardRef((props, ref) => {
             <div className={classes.phoneNumberField}>
                 <FingerprintRoundedIcon action='action' />
                 <TextField spellCheck={false} onChange={(e) => {
-                    if (e.currentTarget.value.length !== 0) setInputValue(e.currentTarget.value);
+                    setInputValue(e.currentTarget.value);
                 }} value={inputValue} autoFocus label='Peer ID' variant='standard' color='primary' fullWidth size='medium' />
 
             </div>

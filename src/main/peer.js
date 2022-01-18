@@ -57,6 +57,12 @@ class Peer {
             nodeId: peerInfo.id
         });
 
+        //* Database for Messages
+        this.chats = await this.orbitdb.docstore('chats', docStoreOptions);
+        await this.chats.load();
+        await addNewChat("Cloud");
+
+
         //* Event on Peer Connection
         this.node.libp2p.connectionManager.on('peer:connect', this.handlePeerConnected.bind(this));
         //* Peer to peer communication via IPFS pubsub
@@ -180,6 +186,41 @@ class Peer {
     getProfileField(key) {
         return this.user.get(key);
     }
+
+    //* Chats DB Related Methods
+
+    async addNewChat(hash) {
+        const existingChat = this.getPieceByHash(hash);
+        if (existingChat) return;
+
+        const cid = await this.chats.put({ hash, messages: [] });
+        return cid;
+    }
+
+    async updateChatByHash(hash, message) {
+        const chat = await this.getChatByHash(hash);
+        let messagesArr = Array.from(chat.messages);
+        messagesArr.push(message);
+        chat.messages = messagesArr;
+        const cid = await this.chats.put(chat);
+        return cid;
+    }
+
+    async deleteChatByHash(hash) {
+        const cid = await this.chats.del(hash);
+        return cid;
+    }
+
+    getAllChats() {
+        const chats = this.chats.get('');
+        return chats;
+    }
+
+    getChatByHash(hash) {
+        const singleChat = this.chats.get(hash)[0];
+        return singleChat;
+    }
+
 
     //* Piece DB Related Methods
     async addNewPiece(hash, instrument = 'Piano') {
