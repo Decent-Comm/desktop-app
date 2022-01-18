@@ -25,7 +25,7 @@ class Peer {
         });
         // console.log(this.node.ipns.options.relay);
         // this.node.bootstrap.reset();
-        this._init();
+        await this._init();
     }
 
     async _init() {
@@ -60,8 +60,9 @@ class Peer {
         //* Database for Messages
         this.chats = await this.orbitdb.docstore('chats', docStoreOptions);
         await this.chats.load();
-        await addNewChat("Cloud");
 
+        await this.deleteChatByHash("Cloud");
+        await this.addNewChat("Cloud");
 
         //* Event on Peer Connection
         this.node.libp2p.connectionManager.on('peer:connect', this.handlePeerConnected.bind(this));
@@ -78,7 +79,7 @@ class Peer {
             console.log(`Peer Connection Event on user DB -> fired: \n${peer}`);
         });
 
-        if (this.onready) this.onready();
+        if (this.onready) await this.onready();
     }
 
     async getSwarms() {
@@ -190,7 +191,7 @@ class Peer {
     //* Chats DB Related Methods
 
     async addNewChat(hash) {
-        const existingChat = this.getPieceByHash(hash);
+        const existingChat = this.getChatByHash(hash);
         if (existingChat) return;
 
         const cid = await this.chats.put({ hash, messages: [] });
@@ -202,6 +203,10 @@ class Peer {
         let messagesArr = Array.from(chat.messages);
         messagesArr.push(message);
         chat.messages = messagesArr;
+
+        console.log(message);
+        console.log(messagesArr);
+        console.log(chat);
         const cid = await this.chats.put(chat);
         return cid;
     }

@@ -90,6 +90,7 @@
     "@mui/icons-material": "^5.2.0",
     "@mui/material": "^5.2.2",
     "browser-image-compression": "^1.0.17",
+    "dayjs": "^1.10.7",
     "electron-squirrel-startup": "^1.0.0",
     "ipfs": "^0.60.0",
     "orbit-db": "^0.28.0",

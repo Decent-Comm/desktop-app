@@ -61,7 +61,7 @@ function Register() {
 
     const handleNextIconClick = () => {
         let profileData = {
-            ppBuffer: uploadedPP, // File instance of Blob or new Blob([await ppInputRef.current.files[0].arrayBuffer()], { type: ppInputRef.current.files[0].type }).slice(),
+            ppBuffer: uploadedPP ?? null, // File instance of Blob or new Blob([await ppInputRef.current.files[0].arrayBuffer()], { type: ppInputRef.current.files[0].type }).slice(),
             name: nameInputRef.current.value,
             surname: surnameInputRef.current.value,
         }

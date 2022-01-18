@@ -57,7 +57,7 @@ const instantiatePeer = async (mainWindow) => {
 
   }
 
-  Peer.create();
+  await Peer.create();
 }
 
 
@@ -79,7 +79,11 @@ const createWindow = async () => {
     }
   });
   console.log(MAIN_WINDOW_WEBPACK_ENTRY);
+
+
   await instantiatePeer(mainWindow);
+
+  // mainWindow.webContents.on("did-start-loading", async () => await instantiatePeer(mainWindow));
   // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
   // mainWindow.webContents.on('did-finish-load', () => {})

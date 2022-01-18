@@ -38,6 +38,7 @@ import LogOut from '../components/LogOut';
 import EmojiList from '../components/EmojiList';
 
 import compressor from "browser-image-compression";
+import { getTime } from '../../utils/dateTime';
 
 
 const bgColors = [
@@ -62,9 +63,11 @@ function Home() {
     const { userDB } = useContext(context);
 
     useEffect(() => {
-        if (userDB.state.profile.ppBuffer) imageBufferToURL(userDB.state.profile.ppBuffer);
-        setInitials(userDB.state.profile.name[0].toUpperCase() + userDB.state.profile.surname[0].toUpperCase());
-        setDisplayName(userDB.state.profile.name + " " + userDB.state.profile.surname);
+        if (userDB.state.profile) {
+            if (userDB.state.profile.ppBuffer) imageBufferToURL(userDB.state.profile.ppBuffer);
+            setInitials(userDB.state.profile.name[0].toUpperCase() + userDB.state.profile.surname[0].toUpperCase());
+            setDisplayName(userDB.state.profile.name + " " + userDB.state.profile.surname);
+        }
     }, [userDB.state.profile])
 
     const [view, setView] = useState(true);
@@ -82,6 +85,7 @@ function Home() {
     const [topics, setTopics] = useState([]);
     const [messages, setMessages] = useState([]);
 
+    const [chatsDB, setChatsDB] = useState([]);
 
     const bootstrapInputRef = useRef(null);
     const connectPeerInputRef = useRef(null);
@@ -154,6 +158,9 @@ function Home() {
         window.bridge.peerAPI.getConnectedPeersList(setConnectedPeersList);
         window.bridge.peerAPI.getTopics(setTopics, setMessages);
 
+        window.bridge.chatApi.getChatDB(setChatsDB);
+        // window.bridge.chatApi.setListener(chatsDB, setChatsDB);
+
         window.bridge.windowApi.setListener(onFocus, onBlur);
     }, [])
 
@@ -193,6 +200,7 @@ function Home() {
         }
         else {
             setSelectedChatId('Cloud');
+            console.log(chatsDB);
         }
 
         textAreaRef.current?.focus();
@@ -291,7 +299,7 @@ function Home() {
         }, 300);
     }
 
-    // const getChatUserID = (userIDs) => userIDs.filter(each => each != credentials.uid)[0];
+    // const getChatUserID = (userIDs) => userIDs.filter(each => each != peer.peerid)[0];
 
     const [userBgColorList, setUserBgColorList] = useState('');
 
@@ -301,7 +309,16 @@ function Home() {
     const lastMessageRef = useRef(null);
     const handleMiddleMessageSubmit = () => {
         // TODO: fix Cloud chat
-        if (textAreaRef.current.value.trim() !== '' && selectedChatId !== 'Cloud') {
+        if (textAreaRef.current.value.trim() !== '') {
+            if (selectedChatId === 'Cloud') {
+                window.bridge.chatApi.addMessage(selectedChatId, {
+                    message: textAreaRef.current.value,
+                    sentBy: peer.peerId,
+                    seen: true,
+                    time: new Date().toISOString() //firebase.firestore.FieldValue.serverTimestamp()
+                });
+            }
+
             // const data = chats.find(chat => chat.id === selectedChatId);
             // props.sendMessageOrFile({
             //     id: selectedChatId,
@@ -464,7 +481,7 @@ function Home() {
                                         <span>{chat[chat.toId].displayName ?? chat[chat.toId].phoneNumber}</span>
                                         {chat.lastMessageInfo &&
                                             <div className={classes.chat_box_content_timeInfo}>
-                                                {chat.lastMessageInfo.sentBy === credentials.uid &&
+                                                {chat.lastMessageInfo.sentBy === peer.peerid &&
                                                     (chat.lastMessageInfo.seen ?
                                                         <DoneAllRoundedIcon color='primary' className={classes.tick} /> :
                                                         <DoneRoundedIcon color='primary' className={classes.tick} />
@@ -480,7 +497,7 @@ function Home() {
                                         <div className={classes.chat_box_content_message}>
                                             <span>{chat.lastMessageInfo?.message ?? chat.lastMessageInfo?.file.name}</span>
                                             <div style={{
-                                                visibility: (chat.lastMessageInfo?.sentBy !== credentials.uid && chat.nonSeenMessages) ?
+                                                visibility: (chat.lastMessageInfo?.sentBy !== peer.peerid && chat.nonSeenMessages) ?
                                                     ((isFocused && chat.id === selectedChatId) ? 'hidden' : 'visible') : 'hidden'
                                             }}>
                                                 {chat.nonSeenMessages}
@@ -532,10 +549,10 @@ function Home() {
                                     <AddCircleOutlineRoundedIcon className={classes.settings_list_icon} />
                                     Add contact
                                 </div>
-                                {/* <div onClick={() => { }}>
-                                <GroupAddOutlinedIcon className={classes.settings_list_icon} />
-                                Create group
-                            </div> */}
+                                <div onClick={() => setView(false)}>
+                                    <GroupAddOutlinedIcon className={classes.settings_list_icon} />
+                                    Peer
+                                </div>
                                 <div onClick={() => { }}>
                                     <LanguageRoundedIcon className={classes.settings_list_icon} />
                                     Language
@@ -559,6 +576,7 @@ function Home() {
                     (() => {
                         let selectedChatData = "Cloud"; // chats?.find(each => each.id === selectedChatId);
                         selectedChatId === "Cloud" && (selectedChatData = { toId: "Cloud", Cloud: { displayName: "Cloud" } });
+
                         return (<>
                             <div className={classes.middle}>
                                 {!selectedChatId ?
@@ -576,32 +594,33 @@ function Home() {
                                                 <span>last seen {onlineUsers[selectedChatData.toId]?.lastSeen ? getLastSeen(onlineUsers[selectedChatData.toId].lastSeen) : 'recently'}</span>
                                             }
                                         </div>
-                                        <div className={classes.chat_container}>
-                                            {/* {data[selectedChatId]?.data?.map((each, index) =>
-                                        <div ref={index === 0 ? lastMessageRef : null} key={each.id} className={each.sentBy === credentials.uid ? classes.message_right : classes.message_left}>
-                                            {each.message ?
-                                                <p className={classes.selectable}>
-                                                    {each.message}
-                                                </p>
-                                                :
-                                                <div className={classes.chat_container_message_content}>
-                                                    <DescriptionRoundedIcon className={classes.chat_container_message_file_icon} onClick={() => !each.localPath ? handleDownloadFile(each.file.url, each.file.name, selectedChatId, index) : openFile(each.localPath)} />
-                                                    <p className={classes.selectable}>
-                                                        {each.file.name}
-                                                    </p>
+                                        <div className={classes.chat_container}>{
+                                            chatsDB.find(chat => chat.hash === selectedChatId)?.messages?.map((each, index) =>
+                                                <div ref={index === 0 ? lastMessageRef : null} key={index} className={each.sentBy === peer.peerId ? classes.message_right : classes.message_left}>
+                                                    {each.message ?
+                                                        <p className={classes.selectable}>
+                                                            {each.message}
+                                                        </p>
+                                                        :
+                                                        <div className={classes.chat_container_message_content}>
+                                                            <DescriptionRoundedIcon className={classes.chat_container_message_file_icon} onClick={() => !each.localPath ? handleDownloadFile(each.file.url, each.file.name, selectedChatId, index) : openFile(each.localPath)} />
+                                                            <p className={classes.selectable}>
+                                                                {each.file.name}
+                                                            </p>
+                                                        </div>
+                                                    }
+                                                    <div className={classes.chat_container_message_time}>
+                                                        <span>{getTime(each.time)}</span>
+                                                        {each.sentBy === peer.peerId &&
+                                                            (each.seen ?
+                                                                <DoneAllRoundedIcon color='primary' className={classes.tick} /> :
+                                                                <DoneRoundedIcon color='primary' className={classes.tick} />
+                                                            )
+                                                        }
+                                                    </div>
                                                 </div>
-                                            }
-                                            <div className={classes.chat_container_message_time}>
-                                                <span>{getTime(each.time)}</span>
-                                                {each.sentBy === credentials.uid &&
-                                                    (each.seen ?
-                                                        <DoneAllRoundedIcon color='primary' className={classes.tick} /> :
-                                                        <DoneRoundedIcon color='primary' className={classes.tick} />
-                                                    )
-                                                }
-                                            </div>
-                                        </div>
-                                    )} */}
+                                            )
+                                        }
 
                                         </div>
                                         <div className={classes.input_bar}>
@@ -835,7 +854,7 @@ function Home() {
                     {messages.length === 0 ? "No Messages Yet" : null}
 
                 </div>
-
+                <Button onClick={() => setView(true)}>GO BACK</Button>
             </div>
     )
 }
