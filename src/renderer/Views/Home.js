@@ -299,21 +299,21 @@ function Home() {
     const [key, setKey] = useState(null);
 
     const lastMessageRef = useRef(null);
-    // const handleMessageSubmit = () => {
-    //     // TODO: fix Cloud chat
-    //     if (textAreaRef.current.value.trim() !== '' && selectedChatId !== 'Cloud') {
-    //         // const data = chats.find(chat => chat.id === selectedChatId);
-    //         // props.sendMessageOrFile({
-    //         //     id: selectedChatId,
-    //         //     message: textAreaRef.current.value,
-    //         //     lastMessageInfo: data.lastMessageInfo,
-    //         //     nonSeenMessages: data.nonSeenMessages,
-    //         //     sharedKey: data.shared_key
-    //         // });
-    //     }
-    //     textAreaRef.current.value = '';
-    //     textAreaRef.current.focus();
-    // }
+    const handleMiddleMessageSubmit = () => {
+        // TODO: fix Cloud chat
+        if (textAreaRef.current.value.trim() !== '' && selectedChatId !== 'Cloud') {
+            // const data = chats.find(chat => chat.id === selectedChatId);
+            // props.sendMessageOrFile({
+            //     id: selectedChatId,
+            //     message: textAreaRef.current.value,
+            //     lastMessageInfo: data.lastMessageInfo,
+            //     nonSeenMessages: data.nonSeenMessages,
+            //     sharedKey: data.shared_key
+            // });
+        }
+        textAreaRef.current.value = '';
+        textAreaRef.current.focus();
+    }
 
     const [isFocused, setIsFocused] = useState(true);
 
@@ -619,7 +619,7 @@ function Home() {
                                                 }}
                                                 onChange={(e) => {
                                                     e.currentTarget.style.height = 'auto';
-                                                    if (key === 'Enter') { handleMessageSubmit(); return setKey(null); }
+                                                    if (key === 'Enter') { handleMiddleMessageSubmit(); return setKey(null); }
 
                                                     if (e.currentTarget.scrollHeight <= 250) {
                                                         e.currentTarget.style.height = e.currentTarget.scrollHeight + 'px';
@@ -628,7 +628,7 @@ function Home() {
                                                 }}
                                                 rows={1}
                                             />
-                                            <SendRoundedIcon onClick={handleMessageSubmit} color='primary' className={classes.send_icon} />
+                                            <SendRoundedIcon onClick={handleMiddleMessageSubmit} color='primary' className={classes.send_icon} />
                                         </div>
                                     </div>
 

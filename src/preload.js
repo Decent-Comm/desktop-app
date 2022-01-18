@@ -45,6 +45,21 @@ contextBridge.exposeInMainWorld('bridge', {
         // }
 
     },
+    chatApi: {
+        getChatDB(setChatDB) {
+            ipcRenderer.invoke('get-chatDB').then(res => setChatDB(res));
+        },
+        addChat(hash, setChatDB) {
+            ipcRenderer.send('add-chat', hash);
+            ipcRenderer.on(hash, (_, chats) => setChatDB(chats))
+        },
+        addMessage(hash, message) {
+            ipcRenderer.send('add-message', hash, message);
+        },
+        setListener(chats) {
+            chats.forEach(each => ipcRenderer.on(each.hash, (_, chats) => setChatDB(chats)))
+        }
+    },
     fileApi: {
         async downloadFile(url, file_name) {
             return await ipcRenderer.invoke('download', url, file_name);

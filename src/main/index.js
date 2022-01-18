@@ -42,6 +42,19 @@ const instantiatePeer = async (mainWindow) => {
       await Peer.updateProfileField('profile', profileData);
       return Peer.getAllProfileFields();
     });
+
+    //* Chats DB
+    ipcMain.handle('get-chatDB', () => Peer.getAllChats());
+    ipcMain.on('add-chat', async (_, hash) => {
+      await Peer.addNewChat(hash);
+      mainWindow.webContents.send(hash, Peer.getAllChats());
+    });
+    ipcMain.on('add-message', async (_, hash, message) => {
+      await Peer.updateChatByHash(hash, message);
+      // return Peer.getChatByHash(hash);
+      mainWindow.webContents.send(hash, Peer.getAllChats());
+    });
+
   }
 
   Peer.create();
